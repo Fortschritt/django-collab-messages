@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% load i18n sekizai_tags staticfiles %}
+
+{% block body_class %}{{ block.super }} messages{% endblock %}
+
+{% block navbar_links %}
+<li>
+	<a href="{% url 'collab_user_views:dashboard' %}">{% trans 'Dashboard' %}</a>
+</li>
+<li class="active">
+	<a href="{% url 'collab_messages:inbox' %}">{% trans 'Messages' %}</a>
+</li>
+
+{% endblock navbar_links %}
+
+

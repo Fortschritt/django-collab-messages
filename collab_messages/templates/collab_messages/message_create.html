@@ -1,0 +1,61 @@
+{% extends 'collab_messages/base.html' %}
+
+{% load i18n widget_tweaks collab_messages_tags sekizai_tags staticfiles%}
+
+{% block content %}
+<div class="col-md-12">
+    <h2>{% trans 'New Message' %}</h2>
+</div>
+
+<div class="col-md-3">
+    <div class="panel panel-default">
+        <div class="panel-body">
+        <a class="btn btn-default" href="{% url 'collab_messages:inbox' %}"><span class="icon icon-level-up"></span> {% trans 'Back to Inbox' %}</a>
+
+        </div>
+    </div>
+</div>
+
+<div class="col-md-9">
+  <div class="panel panel-default">
+    <div class="panel-body">
+        <form class="comment-form" action="{% url "collab_messages:message_create" %}" method="post">
+            {% csrf_token %}
+			 <div class="form-group">
+			{% for field in form.visible_fields %}
+			  <div class="form-group">
+			    <label for="{{ field.id_for_label }}">{% trans field.label %}</label>
+				{% if field.name == "to_user" %}
+					<br>
+					{% accessible_users_select user %}{# NOTE: this needs bootstrap-select.min.js! #}
+				{% else %}
+				    {{ field|add_class:'form-control'|attr:"required" }}
+				{% endif %}
+		    	{% for error in field.errors %}
+		          <span class="help-block">{{ error }}</span>
+			    {% endfor %}
+			  </div>
+		    {% endfor %}
+			</div>
+            <button class="btn btn-primary pull-right"><span class="icon icon-check"></span> {% trans 'Send' %}</button>
+        </form>
+        <a class="btn btn-default" href="{% url "collab_messages:inbox" %}"><span class="icon icon-level-up"></span> {% trans 'Cancel' %}</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+{% addtoblock "js" %}
+<script src="{% static 'collab_messages/js/bootstrap-select.min.js' %}"></script>
+<script>
+
+$('.selectpicker').val('{{ form.to_user.value }}');
+</script>
+{% endaddtoblock %}
+{% addtoblock "css" %}
+<link href="{% static 'collab_messages/css/bootstrap-select.min.css' %}" rel="stylesheet">
+{% endaddtoblock %}
+
+{% endblock %}
+

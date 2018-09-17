@@ -1,0 +1,21 @@
+{% load i18n collab_tags sekizai_tags staticfiles %}
+
+<select name="to_user" id="id_to_user" class="selectpicker media-list media-list-stream" data-live-search="true" required>
+	<option value="">{% trans 'Select recipient' %}</option>
+{% for u in accessible_users %}
+  <option 
+	value="{{ u.pk }}"
+	data-tokens="{{ u.username }} {{ u.first_name }} {{ u.last_name }}"
+	data-content="<div class='media'>
+					<span class='media-left'>
+						<div class='media-object img-profile img-profile-xs' style='background: url({{ u.profile.avatar }});'></div>
+					</span>
+					<div class='media-body'>
+						{{ u|full_nice_name }}
+					</div>
+				</div>"
+	data-icon=""
+	>
+  </option>
+{% endfor %}
+</select>

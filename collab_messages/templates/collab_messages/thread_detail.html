@@ -1,0 +1,84 @@
+{% extends "collab_messages/base.html" %}
+
+{% load i18n collab_tags collab_messages_tags widget_tweaks %}
+
+{% block content %}
+<div class="col-md-12">
+    <h2>{{ thread.subject }}</h2>
+</div>
+<div class="col-md-3">
+	<div class="panel panel-default">
+        <div class="panel-body">
+		<a class="btn btn-default" href="{% url 'collab_messages:inbox' %}"><span class="icon icon-level-up"></span> {% trans 'Back to Inbox' %}</a>
+
+		</div>
+	</div>
+</div>
+
+<div class="col-md-9">
+  <div class="panel panel-default">
+    <div class="panel-body">
+<ul class="media-list media-list-conversation c-w-md">
+
+	<li class="media media-current-user form m-b-md">
+		<div class="media-body">
+        <form  action="{% url "collab_messages:thread_detail" thread.pk %}" method="post">
+            {% csrf_token %}
+			{% for field in form.visible_fields %}
+			  <div class="form-group">
+				{% render_field field rows="2" class+="form-control" %}
+			    {% for error in field.errors %}
+			      <span class="help-block">{{ error }}</span>
+			    {% endfor %}
+			  </div>
+			{% endfor %}
+            <button class="btn btn-primary"><span class="icon icon-check"></span> {% trans 'Send' %}</button>
+	        {# <a class="btn btn-default" href="{% url "collab_messages:inbox" %}">{% trans 'Cancel' %}</a> #}
+        </form>
+		</div>
+
+		 <a class="media-right" href="{% url 'collab_profile:detail' user.pk %}">
+            <img class="img-circle media-object" src="{{ user.profile.avatar }}">
+        </a>
+
+	</li>
+
+
+
+
+{% for message in thread.messages.all reversed %}
+	<li class="media {% if message.sender == user %}media-current-user{% endif %} m-b-md">
+		{% if not message.sender == user %}
+		<a class="media-left" href="{% url 'collab_profile:detail' message.sender.pk %}">
+            <img class="img-circle media-object" src="{{ message.sender.profile.avatar }}">
+        </a>
+		{% endif %}
+    	<div class="media-body">
+			<div class="media-body-text">
+				{{ message.content|urlize|linebreaks }}
+			</div>
+			<div class="media-footer">
+				<small class="text-muted">
+				<a href="{% url 'collab_profile:detail' message.sender.pk %}">{{ message.sender|nice_name }}</a> - {{ message.sent_at }}
+				</small>
+			</div>
+		</div>
+		{% if message.sender == user %}
+		<a class="media-right" href="{% url 'collab_profile:detail' message.sender.pk %}">
+			<img class="img-circle media-object" src="{{ message.sender.profile.avatar }}">
+		</a>
+		{% endif %}
+
+{% endfor %}
+	</li>
+
+	<li class="media m-b-md">
+	<a class="btn btn-warning pull-right" href="{% url "collab_messages:thread_delete" thread.pk %}">
+	<span class="icon icon-trash"></span>
+	{% trans 'Delete Thread' %}</a>
+	</li>
+</ul>
+	</div>
+  </div>
+</div>
+{% endblock %}

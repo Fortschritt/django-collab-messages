@@ -1,0 +1,64 @@
+{% extends 'collab_messages/base.html' %}
+
+
+{% load i18n collab_tags collab_messages_tags pinax_messages_tags %}
+{% block content %}
+<div class="col-md-12">
+<h1>{% trans 'Inbox' %} <small class="text-muted">{% trans 'for' %} {{ user|nice_name }}</small></h1>
+</div>
+<div class="col-md-3">
+	<div class="panel panel-default">
+    	<div class="panel-body">
+			<a class="btn btn-primary" 
+			href="{% url "collab_messages:message_create" %}"
+			><span class="icon icon-new-message"></span> {% trans 'New message' %}</a>
+		</div>
+	</div>
+</div>
+
+<div class="col-md-9">
+	<div class="list-group media-list media-list-stream">
+        {% for thread in threads %}
+			<a class="list-group-item p-a" href="{{ thread.get_absolute_url }}">
+				<span class="media-left">
+					<div class="media-object img-profile" style="background:url({{ thread|recipient_avatar:user }});"></div>
+				</span>
+				<div class="media-body">
+					<strong>{{ thread|recipient:user|nice_name }}</strong>:
+					<strong>{{ thread.subject|truncatechars:50 }}</strong>
+					<div class="text-muted pull-right">{{ thread.messages.last.sent_at }}</div>
+					<div class="media-body-secondary text-muted">
+						{% if thread.latest_message.sender == user %}
+							{% with thread|recipient:user|nice_name as addressee %}
+							{% blocktrans %}{{ addressee }} has not answered yet.{% endblocktrans %}
+							{% endwith %}
+						{% else %}
+							{{ thread.latest_message.content|truncatechars:100 }}
+						{% endif %}
+						</div>
+
+				</div>
+				{% comment %}
+	            <div class="thread {% if thread|unread:user %}unread{% endif %}">
+	                <a href="{{thread.get_absolute_url}}" >
+	                    <div class="row">
+	                        <span class="col-sm-2 users">{{ thread.users.all|join:", " }}</span>
+	                        <div class="col-sm-10">
+	                            <p class="subject">{{ thread.subject }}</p>
+	                            <p class="content text-muted">{{ thread.latest_message.content }}</p>
+	                        </div>
+	                    </div>
+	                </a>
+	            </div>
+				{% endcomment %}
+			</a>
+        {% empty %}
+			<li class="list-group-item p-a">
+            <div>{% trans 'You have no messages.' %}</div>
+			</li>
+        {% endfor %}
+
+	</ul>
+</div>
+
+{% endblock %}
