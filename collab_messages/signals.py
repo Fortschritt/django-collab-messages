@@ -2,17 +2,16 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.utils import timezone
-
-from pinax.messages.signals import message_sent
-
-from collab_messages.models import CollabThread
-from spaces_notifications.mixins import send_manual_notification
-
+from django.utils.translation import ugettext_noop as _
 
 def send_mail_if_recipient_offline(sender, **kwargs):
     """ if the recipient of a new message hasn't been active for a while,
         send an email notification.
     """
+    # import at this point because of "Apps aren't loaded yet"
+    from collab_messages.models import CollabThread
+    from spaces_notifications.mixins import send_manual_notification
+
     sending_user = kwargs["message"].sender
     recipients = kwargs["thread"].users.all()
     recipients = recipients.exclude(pk = sending_user.pk)
@@ -29,5 +28,11 @@ def send_mail_if_recipient_offline(sender, **kwargs):
                 url
             )
 
-
-message_sent.connect(send_mail_if_recipient_offline)
+def create_notice_types(sender, **kwargs):
+    if "pinax.notifications" in settings.INSTALLED_APPS:
+        from spaces_notifications.utils import register_notification
+        register_notification(
+            'unread_message',
+            _("You've got a new message."),
+            _("You've got a new message.")
+        )
