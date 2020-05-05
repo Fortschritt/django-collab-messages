@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from . import views
 
+
+app_name="collab_messages"
 urlpatterns = [
     url(r"^inbox/$", views.CollabInboxView.as_view(),
         name="inbox"),
